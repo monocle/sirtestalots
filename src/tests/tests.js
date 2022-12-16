@@ -1,5 +1,21 @@
 import { describe, test, expect } from "../index.js";
 
+describe("This is the first describe block", () => {
+  describe("It has a nested describe block", () => {
+    test("Here is the first test ", () => {
+      expect(5).toBe(5, "Should not see this message");
+    });
+
+    test("This is the second test ", () => {
+      expect(5).not.toBe(4, "Should not see this message");
+    });
+
+    test("Suspicious third test... ", () => {
+      expect(5).toBe(4, "Oops. This test failed. 5 should === 5, but did not.");
+    });
+  });
+});
+
 describe("describe 1", () => {
   test("test d1-t1", () => {
     expect(5).toBe(5, "custom err msg");
