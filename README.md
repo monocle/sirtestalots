@@ -10,4 +10,4 @@ established open source libraries.
 
 ## Contributing
 
-All are welcomed, just create a Github issue.
+All are welcomed. Just create a Github issue.
