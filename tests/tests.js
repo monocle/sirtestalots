@@ -1,4 +1,4 @@
-import { describe, test, expect } from "../index.js";
+import { describe, test, expect } from "../src/index.js";
 
 describe("This is the first describe block", () => {
   describe("It has a nested describe block", () => {
