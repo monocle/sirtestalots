@@ -8,7 +8,9 @@ The main goal of this project is to develop a JavaScript library from scratch an
 
 ## Contributing
 
-This project is still under early development. There are no dependencies to install. Currently, test results report to the web browser console. To show this functionality, open `src/tests/index.html` in your browser. You should see something like this:
+This project is still under early development. There are no dependencies to install.
+
+Currently, test results report to the web browser console. To show this functionality, open `src/tests/index.html` in your browser. You should see something like this:
 
 ![Example browser console output](assets/browser_console_output.png)
 

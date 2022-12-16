@@ -1,5 +1,3 @@
-// Reporters are responsible for displaying test results.
-// They keep track of testing contexts.
 // A context corresponds to either a describe block or test block.
 class TestReporter {
   _stopOnFail = true;

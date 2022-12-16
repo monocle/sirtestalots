@@ -43,7 +43,7 @@ function mapContexts(
   return mapContexts(rest, level, skipLevel, newContexts);
 }
 
-// allow user to turn off stop on fail
+// TODO allow user to turn off stop on fail
 function runTests() {
   let reporter = new BrowserConsoleReporter();
   reporter.display(mapContexts(contexts));
