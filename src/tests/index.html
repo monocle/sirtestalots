@@ -11,13 +11,17 @@
       import "../tests/tests.js";
       import runTests from "../index.js";
 
-      // default reporter is "BrowserConsoleReporter"
-      runTests();
+      // The default reporter is "BrowserConsoleReporter", but explicitly
+      // passed in here to show how it can be changed in the future.
+      // In addiiton, test running will default to stopping on  the first
+      // failure. This behavior can be toggled.
+      runTests({ reporter: "BrowserConsoleReporter", stopOnFail: true });
     </script>
-    <title>Codolor</title>
+    <title>SirTestALots</title>
   </head>
   <body>
-    <h1>Codolor tests</h1>
+    <h1>SirTestALots</h1>
+    <p>Open the browser console for test results.</p>
     <div id="test-container"></div>
   </body>
 </html>

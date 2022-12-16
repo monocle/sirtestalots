@@ -1,6 +1,6 @@
 import { getExpectResults } from "./expect.js";
 
-import BrowserConsoleReporter from "../reporters/BrowserConsoleReporter.js";
+import BrowserConsoleReporter from "./reporters/BrowserConsoleReporter.js";
 
 let contexts = [];
 
