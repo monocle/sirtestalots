@@ -1,7 +1,6 @@
 // Reporters are responsible for displaying test results.
 // They keep track of testing contexts.
 // A context corresponds to either a describe block or test block.
-// A context is pushed onto the _contexts stack for later processing.
 class TestReporter {
   _stopOnFail = true;
   _numTests = {
@@ -26,6 +25,7 @@ class TestReporter {
 }
 
 export default class BrowserConsoleReporter extends TestReporter {
+  log = window.console.log;
   info = window.console.info;
   warn = window.console.warn;
   error = window.console.error;
@@ -36,101 +36,82 @@ export default class BrowserConsoleReporter extends TestReporter {
   };
 
   display([context, ...contexts]) {
-    if (!context) return;
+    if (!context) {
+      // final summary
+      this.info(`${"-".repeat(16)}`);
+      this.info(
+        `tests passed: ${this._numTests.passed} of ${this._numTests.total}`
+      );
+      return;
+    }
 
-    const { action, description, level, shouldRun, skipLevel } = context;
-
+    const { type, action, description, level, shouldRun, skipLevel } = context;
+    const isDescribe = type === "describe";
+    const isLeaving = action === "leaving";
+    const shouldSkip = skipLevel > 0;
+    const errorResults = context.expectResults;
     const indent = "  ".repeat(level);
     const subSectionSymbol = level > 0 ? this.symbols.subsection + " " : "";
     let message = `${indent}${subSectionSymbol}${description}`;
 
-    if (!shouldRun || skipLevel > 0) {
+    if (!isDescribe && !shouldSkip) {
+      this._numTests.total += 1;
+    }
+
+    if (!shouldRun || shouldSkip) {
       message += " [skipped]";
     }
 
-    if (skipLevel === 0 && action !== "leaving") {
+    if (isDescribe && !shouldSkip && !isLeaving) {
       this.info(message);
     }
+
+    // new top level describe block
+    if (isDescribe && isLeaving && level === 1) {
+      this.log();
+    }
+
+    // test failed
+    if (!isDescribe && errorResults.length > 0) {
+      this.warn(indent, this.symbols.failed, description);
+
+      errorResults.forEach((errorObj) => {
+        this.displayExpectError(errorObj, indent);
+      });
+
+      if (this._stopOnFail) {
+        return;
+      }
+    } else if (!isDescribe && !shouldSkip) {
+      this._numTests.passed += 1;
+      this.info(indent, this.symbols.passed, description);
+    }
+
     this.display(contexts);
   }
 
-  display_(contexts) {
-    console.log(contexts);
-    let indentLevel = 0;
+  displayExpectError({ firstValue, secondValue, message, isNot }, indent_) {
+    const indent = indent_ + "  ";
 
-    for (const context of contexts) {
-      const indent = "  ".repeat(indentLevel);
-
-      if (context.type === "describe") {
-        const { action, description, shouldRun } = context;
-
-        if (action === "entering") {
-          const subSectionSymbol =
-            indentLevel > 0 ? this.symbols.subsection + " " : "";
-
-          if (shouldRun) {
-            this.info(`${indent}${subSectionSymbol}${description}`);
-          } else {
-            this.info(`${indent}${subSectionSymbol}${description} [skipped]`);
-          }
-
-          indentLevel += 1;
-        } else {
-          indentLevel -= 1;
-
-          if (indentLevel === 0) {
-            if (shouldRun) {
-              console.log();
-            }
-          }
-        }
-      } else {
-        // test context
-        const { description, passed, error } = context;
-
-        this._numTests.total += 1;
-
-        if (passed) {
-          this._numTests.passed += 1;
-
-          this.info(indent, this.symbols.passed, description);
-        } else {
-          const { message, firstValue, secondValue } = error;
-
-          this.info(indent, this.symbols.failed, description);
-
-          if (message) {
-            this.warn(message);
-          }
-
-          // FIX this needs to account for "not"
-          this.warn("This:");
-          this.warn(firstValue);
-          this.warn("Did not match:");
-          this.warn(secondValue);
-
-          if (
-            typeof firstValue === "string" &&
-            typeof secondValue === "string"
-          ) {
-            const diffIdx = this.getDiffStringsIdx(firstValue, secondValue);
-            this.warn(`Strings differ at position: ${diffIdx}`);
-
-            if (diffIdx !== 0) {
-              this.warn(firstValue.slice(0, diffIdx), "<-");
-            }
-          }
-
-          if (this._stopOnFail) {
-            break;
-          }
-        }
-      }
+    if (message) {
+      this.warn(indent, message);
     }
 
-    this.info(`${"-".repeat(16)}`);
-    this.info(
-      `tests passed: ${this._numTests.passed} of ${this._numTests.total}`
-    );
+    if (isNot) {
+      this.warn(indent, `Both values were: ${firstValue}`);
+      this.warn(indent, `The results should not match each other`);
+    } else {
+      this.warn(indent, `This: ${firstValue}`);
+      this.warn(indent, `Did not match: ${secondValue}`);
+    }
+
+    if (typeof firstValue === "string" && typeof secondValue === "string") {
+      const diffIdx = this.getDiffStringsIdx(firstValue, secondValue);
+      this.warn(`Strings differ at position: ${diffIdx}`);
+
+      if (diffIdx !== 0) {
+        this.warn(firstValue.slice(0, diffIdx), "<-");
+      }
+    }
   }
 }

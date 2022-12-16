@@ -5,8 +5,10 @@ describe("describe 1", () => {
     expect(5).toBe(5, "custom err msg");
   });
 
-  test("test d1-t2", () => {
-    expect(5).toBe(5, "custom err msg");
+  test("test d1-t2 fail x 2", () => {
+    expect(5).toBe(5, "should not be seen");
+    expect(5).toBe(4, "5 was not 4");
+    expect(1).toBe(2, "1 was not 2");
   });
 
   describe(
@@ -28,7 +30,7 @@ describe("describe 1", () => {
   );
 
   test("test d1-t3", () => {
-    expect(3).toBe(3);
+    expect(3).toBe(4, "second custom error message");
   });
 
   describe("describe d1-d3", () => {
@@ -83,7 +85,7 @@ describe(
 );
 
 describe("describe d4", () => {
-  test("test d4-t1", () => {
-    expect(3).toBe(3);
+  test("test d4-t1 not", () => {
+    expect(4).not.toBe(4);
   });
 });

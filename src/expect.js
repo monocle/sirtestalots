@@ -1,28 +1,53 @@
-export default function expect(firstValue) {
+let expectResults = [];
+
+function getExpectResults() {
+  const results = [...expectResults];
+  expectResults = [];
+  return results;
+}
+
+function toBe(secondValue, message = "") {
+  const { firstValue, isNot } = this;
   const errorObj = {
     firstValue,
-    message: "",
+    secondValue,
+    message,
+    isNot,
     isTest: true,
   };
-  let shouldEquals = true;
 
+  const failed = isNot
+    ? firstValue === secondValue
+    : firstValue !== secondValue;
+
+  if (failed) {
+    errorObj.stack = new Error().stack.split("\n");
+    expectResults.push({ ...errorObj });
+  }
+
+  return this;
+}
+
+function makeExpectObject(firstValue) {
   const expectObject = {
-    toBe(secondValue, message = "") {
-      const failed = shouldEquals
-        ? firstValue !== secondValue
-        : firstValue === secondValue;
-
-      if (failed) {
-        throw { ...errorObj, secondValue, message };
-      }
-
-      return expectObject;
-    },
-    get not() {
-      shouldEquals = !shouldEquals;
-      return expectObject;
-    },
+    firstValue,
+    isNot: false,
   };
+
+  expectObject.toBe = toBe.bind(expectObject);
+
+  Object.defineProperty(expectObject, "not", {
+    get() {
+      expectObject.isNot = !expectObject.isNot;
+      return this;
+    },
+  });
 
   return expectObject;
 }
+
+export default function expect(firstValue) {
+  return makeExpectObject(firstValue);
+}
+
+export { getExpectResults };

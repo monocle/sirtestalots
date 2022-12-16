@@ -1,12 +1,8 @@
+import { getExpectResults } from "./expect.js";
+
 import BrowserConsoleReporter from "../reporters/BrowserConsoleReporter.js";
 
 let contexts = [];
-
-let reporter = new BrowserConsoleReporter();
-
-function setReporter(newReporter) {
-  // TODO
-}
 
 function mapContexts(
   [context, ...rest],
@@ -19,9 +15,10 @@ function mapContexts(
   const { type, action, shouldRun } = context;
   const isEntering = action === "entering";
   const isDescribe = type === "describe";
+  const isSkipping = skipLevel > 0;
   const isFirstDontRunDescribe = isDescribe && !shouldRun && skipLevel === 0;
-  const shouldIncreaseSkipLevel = isDescribe && isEntering && skipLevel > 0;
-  let newContext = { ...context, level, skipLevel };
+  const shouldIncreaseSkipLevel = isDescribe && isEntering && isSkipping;
+  let newContext = { ...context, level, skipLevel, expectResults: [] };
 
   if (isDescribe) {
     level += isEntering ? 1 : -1;
@@ -31,9 +28,14 @@ function mapContexts(
     skipLevel++;
   }
 
-  if (!isEntering && skipLevel > 0) {
+  if (!isEntering && isSkipping) {
     skipLevel--;
     newContext.skipLevel = skipLevel;
+  }
+
+  if (!isDescribe) {
+    context.exec();
+    newContext.expectResults = [...getExpectResults()];
   }
 
   newContexts.push(newContext);
@@ -41,7 +43,9 @@ function mapContexts(
   return mapContexts(rest, level, skipLevel, newContexts);
 }
 
+// allow user to turn off stop on fail
 function runTests() {
+  let reporter = new BrowserConsoleReporter();
   reporter.display(mapContexts(contexts));
 }
 
@@ -69,4 +73,4 @@ function makeTestingContext(type) {
 const describe = makeTestingContext("describe");
 const test = makeTestingContext("test");
 
-export { describe, test, setReporter, runTests };
+export { describe, test, runTests };
