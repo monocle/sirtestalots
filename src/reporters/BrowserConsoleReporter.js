@@ -73,9 +73,13 @@ export default class BrowserConsoleReporter extends TestReporter {
     if (!isDescribe && errorResults.length > 0) {
       this.warn(indent, this.symbols.failed, description);
 
-      errorResults.forEach((errorObj) => {
-        this.displayExpectError(errorObj, indent);
-      });
+      if (this._stopOnFail) {
+        this.displayExpectError(errorResults[0], indent);
+      } else {
+        errorResults.forEach((errorObj) => {
+          this.displayExpectError(errorObj, indent);
+        });
+      }
 
       if (this._stopOnFail) {
         return;
@@ -122,6 +126,12 @@ export default class BrowserConsoleReporter extends TestReporter {
       this.warn(indent, `Second value: ${secondValue[unmatchedIdx]}`);
     }
 
+    this.info("Stack:");
+    this.parseErrorStack(stack).forEach((line) => this.info(line));
   }
+
+  parseErrorStack(stack) {
+    // Firefox and Chrome have different stacks
+    return stack.slice(0, 3);
   }
 }
