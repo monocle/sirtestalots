@@ -88,7 +88,10 @@ export default class BrowserConsoleReporter extends TestReporter {
     this.display(contexts);
   }
 
-  displayExpectError({ firstValue, secondValue, message, isNot }, indent_) {
+  displayExpectError(
+    { firstValue, secondValue, message, isNot, stack, unmatchedIdx },
+    indent_
+  ) {
     const indent = indent_ + "  ";
 
     if (message) {
@@ -108,8 +111,17 @@ export default class BrowserConsoleReporter extends TestReporter {
       this.warn(`Strings differ at position: ${diffIdx}`);
 
       if (diffIdx !== 0) {
-        this.warn(firstValue.slice(0, diffIdx), "<-");
+        this.warn(indent, firstValue.slice(0, diffIdx), "<-");
       }
     }
+
+    if (unmatchedIdx !== -1) {
+      this.warn(indent, `First index: ${unmatchedIdx}`);
+
+      this.warn(indent, `First value: ${firstValue[unmatchedIdx]}`);
+      this.warn(indent, `Second value: ${secondValue[unmatchedIdx]}`);
+    }
+
+  }
   }
 }

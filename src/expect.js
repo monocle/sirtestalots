@@ -1,3 +1,17 @@
+let _ = {};
+_.findUnmatchedArrayIdx = function findUnmatchArrayElement(first, second) {
+  // what to do if element is array or object
+  let idx = first.findIndex((elem, i) => {
+    return elem !== second[i];
+  });
+
+  if (first.length !== second.length) {
+    idx = first.length;
+  }
+
+  return idx;
+};
+
 let expectResults = [];
 
 function getExpectResults() {
@@ -14,11 +28,23 @@ function toBe(secondValue, message = "") {
     message,
     isNot,
     isTest: true,
+    stack: undefined,
+    unmatchedIdx: -1,
   };
+  let failed = true;
 
-  const failed = isNot
-    ? firstValue === secondValue
-    : firstValue !== secondValue;
+  if (Array.isArray(firstValue) && Array.isArray(secondValue)) {
+    let failedIdx = -1;
+
+    failedIdx = _.findUnmatchedArrayIdx(firstValue, secondValue);
+    errorObj.unmatchedIdx = failedIdx;
+
+    failed = failedIdx !== -1;
+  } else {
+    failed = firstValue !== secondValue;
+  }
+
+  failed = isNot ? !failed : failed;
 
   if (failed) {
     errorObj.stack = new Error().stack.split("\n");
