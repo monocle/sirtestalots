@@ -12,6 +12,10 @@ describe("This is the first describe block", () => {
 
     test("Suspicious third test... ", () => {
       expect(5).toBe(4, "Oops. This test failed. 5 should === 5, but did not.");
+      expect(5).toBe(
+        4,
+        "Should not see this message since the previous assertion failed"
+      );
     });
   });
 });
