@@ -106,7 +106,7 @@ export default class BrowserConsoleReporter extends TestReporter {
       this.warn(indent, `Both values were: ${firstValue}`);
       this.warn(indent, `The results should not match each other`);
     } else {
-      this.warn(indent, `This: ${firstValue}`);
+      this.warn(indent, `This:          ${firstValue}`);
       this.warn(indent, `Did not match: ${secondValue}`);
     }
 
@@ -120,9 +120,9 @@ export default class BrowserConsoleReporter extends TestReporter {
     }
 
     if (unmatchedIdx !== -1) {
-      this.warn(indent, `First index: ${unmatchedIdx}`);
+      this.warn(indent, `At index: ${unmatchedIdx}`);
 
-      this.warn(indent, `First value: ${firstValue[unmatchedIdx]}`);
+      this.warn(indent, `First value:  ${firstValue[unmatchedIdx]}`);
       this.warn(indent, `Second value: ${secondValue[unmatchedIdx]}`);
     }
 
